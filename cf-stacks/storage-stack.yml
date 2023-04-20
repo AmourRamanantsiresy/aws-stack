@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Stack STD21052
+
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: std21052
+  BucketArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /std21052/s3/bucket-arn
+      Type: String
+      Value: !GetAtt Bucket.Arn
+  BucketNameParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /std21052/s3/bucket-name
+      Type: String
+      Value: !Ref Bucket
