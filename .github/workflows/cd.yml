@@ -20,7 +20,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-3
 
-      - name: Deploy s3 bucket
+      - name: Deploy RDS postgres
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: stack

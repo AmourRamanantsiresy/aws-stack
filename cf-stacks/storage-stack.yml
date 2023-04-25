@@ -1,21 +1,40 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: Stack STD21052
+AWSTemplateFormatVersion: 2010-09-09
+Description: "RDS Storage stack"
+
+Parameters:
+  DBName:
+    Type: String
+    Default: pgDB
 
 Resources:
-  Bucket:
-    Type: AWS::S3::Bucket
+  Database:
+    Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
     Properties:
-      BucketName: std21052
-  BucketArnParameter:
+      DBName: !Ref DBName
+      AllocatedStorage: "5"
+      DBInstanceClass: "db.t3.micro"
+      Engine: postgres
+      MasterUsername: !Sub "{{resolve:ssm:/std21052/db/username}}"
+      MasterUserPassword: !Sub "{{resolve:ssm:/std21052/db/password}}"
+  DatabaseSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /std21052/s3/bucket-arn
+      Name: /std21052/db/url
       Type: String
-      Value: !GetAtt Bucket.Arn
-  BucketNameParameter:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: /std21052/s3/bucket-name
-      Type: String
-      Value: !Ref Bucket
+      Value:
+        Fn::Join:
+          - ""
+          - - jdbc:postgresql://
+            - Fn::GetAtt:
+                - Database
+                - Endpoint.Address
+            - ":"
+            - Fn::GetAtt:
+                - Database
+                - Endpoint.Port
+            - "/"
+            - !Ref DBName
+Outputs:
+  DatabaseSSM:
+    Value: !Ref DBName
